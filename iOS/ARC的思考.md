@@ -264,19 +264,11 @@ ARC有效时，我们不能继续使用`autorelease`方法和`NSAutoreleasePool`
    *另外，由于超出autoreleasepool块范围，autoreleasepool块结束
    *所以注册到autoreleasepool上的对象被释放，上述对象的引用计数变为0，对象被废弃
    */
-  ```
   
-
-  
-像上面的`obj`对象就是自动注册到了autoreleasepool中。
-  
-  
-  
-  ```objective-c
   + (id) array
-  {
+{
     id obj = [[NSMutableArray alloc] init];
-    /*
+  /*
      *obj默认附有__strong修饰符，持有并指向对象，对象引用计数为1
      */
     return obj;
@@ -287,6 +279,42 @@ ARC有效时，我们不能继续使用`autorelease`方法和`NSAutoreleasePool`
   	 *确保在obj指向对象前，对象不会被释放
   	 */
   ```
+  
+  像上面的`obj`对象就是自动注册到了autoreleasepool中。
+  
+  #### 弱引用
+  
+  虽然`__weak`修饰符是为了避免循环引用而使用的，但在访问附有`__weak`修饰符的变量时，实际上必定要访问注册到``autoreleasepool的对象。
+  
+  ```objective-c
+  id __weak obj1 = obj0;
+  NSLog(@"class=%@",[obj1 class]);
+  ```
+  
+  等同于以下代码
+  
+  ```objective-c
+  id __weak obj1 = obj0;
+  id __autoreleasing tmp = obj1;
+  NSLog(@"class=%@",[tmp class]);
+  ```
+  
+  可以看到，访问附有`__weak`的变量指向的对象时，必须访问注册到`autoreleasepool`的对象。因为`__weak`修饰符只持有对象的弱引用，而在访问引用对象的过程中，该对象有可能被废弃，而如果把要访问的对象注册到`autoreleasepool`中，那么在`@autoreleasepool`块结束之前都能确保该对象存在。
+  
+  但是，我们会想到，如果只是访问附有`__weak`修饰符的变量自身呢？
+  
+  ```objective-c
+  id __weak obj1 = obj0;
+  NSLog(@"adress=%p",obj1);
+  ```
+  
+  把`autoreleasepool`打印出来可以看到，这时，变量指向的对象并不会注册到`autoreleasepool`中。
+  
+  因此我们可以得出这样一个结论：**访问附有`__weak`修饰符指向的对象时，该对象必定会注册到`autoreleasepool`中，但若只是访问附有`__weak`修饰符的变量自身，变量指向的对象并不会注册到`autoreleasepool`中**
+  
+  #### 指向`id`指针的指针
+  
+  首先，对于`id`指针，譬如`id obj`，默认实现其实是`id __strong obj`。但对于id的指针或对象的指针，譬如`id *obj`,其默认实现却是`id __autoreleasing *obj`。
   
   oreleasepool上的做法，是为了得到方法返回的对象（非自己生成并持有），对于类似下述这种操作实际上并不会执行自动注册到autoreleasepool，除非将对象赋值给附有`_autoreleasing`修饰符的变量。
   
