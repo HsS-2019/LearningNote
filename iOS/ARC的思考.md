@@ -316,6 +316,40 @@ ARC有效时，我们不能继续使用`autorelease`方法和`NSAutoreleasePool`
   
   首先，对于`id`指针，譬如`id obj`，默认实现其实是`id __strong obj`。但对于id的指针或对象的指针，譬如`id *obj`,其默认实现却是`id __autoreleasing *obj`。
   
+  最常见的应用场景便是错误传递，在Cocoa和Cocoa Touch的类中，有些方法不是直接抛出错误，而是把错误对象赋给方法的参数指针。
+  
+  ```objective-c
+  - (BOOL) performOperationWithError:(NSError **)error;
+  ```
+  
+  参数中对象的指针隐式使用了`__autoreleasing`修饰符，即上述声明的方法的实现如下
+  
+  ```objective-c
+  - (BOOL) performOperationWithError:(NSError * __autoreleasing *)error{
+  	/*
+  	 *错误发生
+  	 */
+    *error = [[NSError alloc] initWithDomain: MyAppDomain code: errorCode userInfo: nil];
+    return No;
+  }
+  ```
+  
+  我们可以发现，`error`是带有`__autoreleasing`修饰符的对象指针，所以在方法内部将`NSError`对象赋值给`error`时，会把对象注册到`autoreleasepool`中。思考一下，如果隐式表示的不是`__autoreleasing`，而是`__strong`，我们会得到以下实现，这会有什么问题呢？
+  
+  ```objective-c
+  - (BOOL) performOperationWithError:(NSError * __strong *)error{
+  	/*
+  	 *错误发生
+  	 */
+    *error = [[NSError alloc] initWithDomain: MyAppDomain code: errorCode userInfo: nil];
+    return No;
+  }
+  ```
+  
+  对象作为参数的传递，传递的是地址，所以方法内部可以修改外界传进来的对象的值。对象指针作为参数的传递，传递的是指向对象的变量地址。
+  
+  
+  
   oreleasepool上的做法，是为了得到方法返回的对象（非自己生成并持有），对于类似下述这种操作实际上并不会执行自动注册到autoreleasepool，除非将对象赋值给附有`_autoreleasing`修饰符的变量。
   
   ```objective-c
