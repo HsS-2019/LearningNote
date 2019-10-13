@@ -16,11 +16,9 @@
 
 需要注意的是，不管在不在ARC下，类对象都有强引用和弱引用之分，**且Xcode 4.2以上版本默认设定为对所有的文件ARC有效**。
 
-## ARC的规则
+## 所有权修饰符
 
-### 所有权修饰符
-
-#### `__storng`修饰符
+### `__storng`修饰符
 
 `__strong`是id类型和对象类型默认的所有权修饰符，表示对对象的强引用。持有强引用的变量在超出其作用域时被废弃，随着强引用的失效，引用的对象会随之释放。代码示例如下：
 
@@ -95,7 +93,7 @@
 * 通过作用域管理，作用域结束则自动释放当前持有的对象
 * 通过赋值管理，赋值当前变量的值为别的对象的指针或nil，使得变量释放当前持有的对象
 
-##### 四条原则
+#### 四条原则
 
 回忆一下我们在上一篇说到的引用计数的**四条原则**
 
@@ -108,7 +106,7 @@
 
 需要注意的是，`__strong`修饰符同后面要讲的`__weak`修饰符和`__autoreleasing`修饰符一样，可以保证附有这些修饰符的变量在**声明时初始化**为`nil`。
 
-#### `__weak`修饰符
+### `__weak`修饰符
 
 从上面的论述可以发现，通过`__strong`修饰符已经基本实现了引用计数管理功能，但在管理对象引用的过程中仍存在着一些常见的问题，比如循环引用。
 
@@ -197,7 +195,7 @@ main()
 }
 ```
 
-##### 使用场景
+#### 使用场景
 
 为了更好的理解`__weak`修饰符，我们来看下带`__weak`修饰符的变量的使用场景
 
@@ -208,7 +206,7 @@ main()
 
 **PS：**在`Swift`中除了弱引用外，还引入了无主引用的概念，用以在一个属性的值允许为`nil`，而另一个属性的值不允许为`nil`的场景中，解决循环引用问题。
 
-#### `__unsafe_unretained`修饰符
+### `__unsafe_unretained`修饰符
 
 正如名字带有的unsafe部分所示，这是一个不安全的所有权修饰符。需要注意的是，**尽管ARC式的内存管理是编译器的工作，但附有`__unsafe_unretained`修饰符的变量不属于编译器的内存管理对象。**
 
@@ -240,7 +238,7 @@ id __unsafe_unretained obj = [[NSObject alloc] init];
      id __unsafe_unretained obj2 = nil;
    ```
 
-##### 使用场景
+#### 使用场景
 
 下面我们来看下`__unsafe_unretained`修饰符的使用场景
 
@@ -249,7 +247,7 @@ id __unsafe_unretained obj = [[NSObject alloc] init];
 
 需要注意的是，在swift中已经去掉了这一修饰符，场景2中可使用swift中的特性`!`代替。
 
-#### `__autoreleasing`修饰符
+### `__autoreleasing`修饰符
 
 ARC有效时，我们不能继续使用`autorelease`方法和`NSAutoreleasePool`类，但可以通过别的方法实现相同的效果。
 
@@ -258,7 +256,7 @@ ARC有效时，我们不能继续使用`autorelease`方法和`NSAutoreleasePool`
 
 但是，显式地附加`__autoreleasing`修饰符同显式地附加`__strong`修饰符一样罕见，因为很多时候，我们都是非显式地使用`__autoreleasing`修饰符。
 
-##### 使用场景
+#### 使用场景
 
 非显式地使用`__autoreleasing`修饰符的主要应用场景如下
 
@@ -269,7 +267,7 @@ ARC有效时，我们不能继续使用`autorelease`方法和`NSAutoreleasePool`
 - 指向id指针的指针
 
 
-###### 取得非自己生成并持有的对象 
+##### 取得非自己生成并持有的对象 
 
   因为编译器会检查方法名是否为alloc/new/copy/mutableCopy开头，不是的话自动将返回值的对象注册到autoreleasepool。需要注意的是，init方法返回的对象不注册到autoreleasepool。
 
@@ -305,7 +303,7 @@ ARC有效时，我们不能继续使用`autorelease`方法和`NSAutoreleasePool`
 
 像上面的`obj`对象就是自动注册到了autoreleasepool中。
 
-  ###### 弱引用
+  ##### 弱引用
 
 虽然`__weak`修饰符是为了避免循环引用而使用的，但在访问附有`__weak`修饰符的变量指向的对象时，实际上必定要访问注册到`autoreleasepool`的对象。
 
@@ -335,7 +333,7 @@ ARC有效时，我们不能继续使用`autorelease`方法和`NSAutoreleasePool`
 
 因此我们可以得出这样一个结论：**访问附有`__weak`修饰符指向的对象时，该对象必定会注册到`autoreleasepool`中，但若只是访问附有`__weak`修饰符的变量自身，变量指向的对象并不会注册到`autoreleasepool`中**
 
-  ###### 指向`id`指针的指针
+  ##### 指向`id`指针的指针
 
 首先，对于`id`指针，譬如`id obj`，默认实现其实是`id __strong obj`。但对于`id`类型的指针或对象的指针，譬如`id *obj`,其默认实现却是`id __autoreleasing *obj`。
 
@@ -373,6 +371,10 @@ ARC有效时，我们不能继续使用`autorelease`方法和`NSAutoreleasePool`
 
 但是如上面代码这种情况，在方法内部生成对象并将该对象赋值给参数变量（对象指针）时，由于参数变量是方法内部的局部变量，所以使用附有`__strong`修饰符的参数变量可能面临对象在方法结束时被废弃的问题，而使用附有`__autoreleasing`修饰符的参数变量则会将对象注册到`autoreleasepool`中，这一场景同通过除`alloc/new/copy/mutableCopy`外其它方法的返回值取得对象一样。
 
-#### 总结
+### 总结
 
 从上面可以看到，每个所有权修饰符都有它们独有的使用场景。`__strong`修饰符是自动引用计数的基础，完美遵守了**四个原则**；`__weak`修饰符主要解决了引用计数管理过程中出现的**循环引用/自引用**问题，避免了内存泄漏的情况出现；`__unsafe_unretained`修饰符主要在iOS4以及OS X Snow Leopard的应用程序中**替代`__weak`修饰符**使用，主要解决循环引用/自引用问题；`__autlreleasing`修饰符主要替代了对象的`autorelease`方法，作用是**把对象注册到`autoreleasepool`中**，避免了对象在使用前被废弃的情况发生，同样也是引用计数实现中不可缺少的一环。
+
+尝试使用思维导图总结了一下上面说的东西
+
+![image-20191006214959693](https://tva1.sinaimg.cn/large/006y8mN6ly1g7otizk6bjj31510gs0xp.jpg)
