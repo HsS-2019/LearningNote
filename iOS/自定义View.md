@@ -6,6 +6,25 @@
 
 layoutSubviews、setNeedDisplay，init和init(frame: CGRect)、draw()等方法的作用、如何重写和何时调用（加载流程）
 
+#### 了解View的加载
+
+在纯代码构建view时，我们常常这样初始化一个`view`
+
+```swift
+//1>. 默认初始化
+let view1 = UIView()
+
+//2>. 继承的方法
+let size = CGSize(width: 20, height: 20)
+let view2 = UIVIew(frame: CGRect(origin: .zero, size: size))
+
+//3>. 自定义方法
+let titles = ["形状", "样式", "文本"]
+let view3 = CustomView(items: titles)
+```
+
+这一阶段我们完成了控件最简单的初始化，
+
 ### 使用纯代码构建自定义View
 
 使用纯代码构建View，所以选择了SnapKit实现View之间的约束。需要注意的是，使用SnapKit编写约束的过程中需要确保subview或superview的约束实现完整（例如宽高）。
