@@ -19,3 +19,4 @@ Range一般分四种，`ClosedRange`、`CountableClosedRange`、`Range`和`Count
 
 ### 参考资料
 - [Swift字符串截取与Range使用](https://www.jianshu.com/p/2308703b50e4)
+- [String为什么这么难用？](https://kemchenj.github.io/2019-10-07/)
