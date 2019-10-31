@@ -25,9 +25,20 @@ Swift进阶
 
 * #### `Hash`值的使用
 
+### 工程进阶
+
+#### 任务调度器的实现
+
+先学知识
+
+* 相关数据结构：queue、stack、deque、priority_queue
+* 相关设计模式：命令模式、策略模式
+* iOS相关：runloop、线程安全
+
 ### 参考资料
 
-- 参考资料：[Swift的字符串为什么这么难用？](https://kemchenj.github.io/2019-10-07/)
+- [Swift的字符串为什么这么难用？](https://kemchenj.github.io/2019-10-07/)
+- [iOS 任务调度器：为CPU和内存减负](https://mp.weixin.qq.com/s/3LaZYNoqy_UawY81PyT9pQ)
 
 
 
