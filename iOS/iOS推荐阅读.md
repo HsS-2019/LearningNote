@@ -7,7 +7,7 @@
 ### 教程和书籍
 #### 语法
  - [官方文档（中文版）](https://www.cnswift.org/)
- 
+
 #### 视频教程
 - [Stanford iOS开发课程](https://www.bilibili.com/video/av42035892)
 围绕怎么开发一个翻牌游戏，讲解使用swift开发iOS的基本流程  
@@ -67,4 +67,17 @@
 
 ## Flutter
 点击进入[官方网站](https://flutter.dev/)
+
 ### 其它学习资源
+
+
+
+## 进阶阅读
+
+* [美团 iOS 端开源框架 Graver 在动态化上的探索与实践](https://mp.weixin.qq.com/s/PD9hnWv8B32ZCYj1UokUBA)
+
+  主要讨论了在iOS端对动态化布局和渲染优化进行的探索，渲染流程由系统UIKit的“拼控件”，变成了自定义的“画控件”。两者都是线程安全的，不同的是UIKit只能在主线程进行绘制，而Graver可以在非主线程进行绘制，直到需要显示时才转到主线程，这有利于减小主线程的资源开销，提高渲染性能。
+
+* 
+
+New Story
