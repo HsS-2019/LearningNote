@@ -78,6 +78,10 @@
 
   主要讨论了在iOS端对动态化布局和渲染优化进行的探索，渲染流程由系统UIKit的“拼控件”，变成了自定义的“画控件”。两者都是线程安全的，不同的是UIKit只能在主线程进行绘制，而Graver可以在非主线程进行绘制，直到需要显示时才转到主线程，这有利于减小主线程的资源开销，提高渲染性能。
 
+* [Understanding the iOS 13 Scene Delegate](https://www.donnywals.com/understanding-the-ios-13-scene-delegate/)
+
+  本文主要围绕Xcode 11以上新建的项目自带的新文件`SceneDelegate.swift`，讨论了`SceneDelegate.swift`的用途、怎么更有效率地实现`SceneDelegate.swift`，以及为什么说`SceneDelegate.swift`是iOS 13的重要部分
+
 * 
 
 New Story
