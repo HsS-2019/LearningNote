@@ -3,7 +3,7 @@
 ### Swift 5
 
 * ABI稳定
-* Properties wrapper
+* Properties wrapper + UserDefault实现类型安全的键值存储
 
 ### iOS 13
 
