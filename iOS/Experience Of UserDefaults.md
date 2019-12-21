@@ -32,6 +32,8 @@ Experience Of UserDefault
 
 > UserDefaults有两层cache：域（domain）层和app层
 
+
+
 ### 键值对存储的实现
 
 现在我们知道了`UserDefaults`是什么，接下来让我们做一些实践，尝试基于`UserDefaults`和**Property wrappers**实现键值存储。
@@ -52,5 +54,104 @@ struct UserDefault<T: PropertyListValue> {
 }
 ```
 
-注意我们需要给`T`设置约束，使`T`符合上文说到的
+注意我们给`T`设置了约束，`T`必须为`PropertyListValue`类型 。`PrropertyListValue`是我们为所有符合要求的数据类型所创建的标记协议：
 
+> 受[Burritos](https://github.com/guillermomuntaner/Burritos/tree/master/Sources/UserDefault)实现的`UserDefaults`的启发，而使用了如下代码的做法
+
+```swift
+// The marker protocol
+protocol PropertyListValue {}
+
+extension Data: PropertyListValue {}
+extension String: PropertyListValue {}
+extension Date: PropertyListValue {}
+extension Bool: PropertyListValue {}
+extension Int: PropertyListValue {}
+extension Double: PropertyListValue {}
+extension Float: PropertyListValue {}
+
+// Every element must be a property-list type
+extension Array: PropertyListValue where Element: PropertyListValue {}
+extension Dictionary: PropertyListValue where Key == String, Value: PropertyListValue {}
+```
+
+
+
+### 观察UserDefaults的值变化
+
+由于`UserDefaults`通常作为系统范围的首选项，通常会在你的app的不同部分响应它的变化。所以在这一部分，我们会扩展`UserDefaults`属性封装器以能够观察值的变化。
+
+我们首先实现`DefaultsObservation`，通过KVO来监听`UserDefaults`的变化
+
+```swift
+class DefaultsObservation: NSObject {
+    let key: Key
+    private var onChange: (Any, Any) -> Void
+
+    // 1
+    init(key: Key, onChange: @escaping (Any, Any) -> Void) {
+        self.onChange = onChange
+        self.key = key
+        super.init()
+        UserDefaults.standard.addObserver(self, forKeyPath: key.rawValue, options: [.old, .new], context: nil)
+    }
+    
+    // 2
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey: Any]?, context: UnsafeMutableRawPointer?) {
+        guard let change = change, object != nil, keyPath == key.rawValue else { return }
+        onChange(change[.oldKey] as Any, change[.newKey] as Any)
+    }
+    
+    // 3
+    deinit {
+        UserDefaults.standard.removeObserver(self, forKeyPath: key.rawValue, context: nil)
+    }
+}
+```
+
+1. 观察者接受一个类型安全的`Key`变量，和一个`onChange`闭包，最早开始监听`USerDefaults`的值变化（通过key指定）
+2. 当通过key指定的值被改变时，KVO系统自动调用observeValue()方法，这个方法接受了一个`change`字典，从这个字典中我们可以取出**new Value**和**old Value**，并把这两者传递给`onChange`闭包
+3. 当观察者对象被销毁后，从KVO注销监听。
+
+我们在property warpper中添加了一个observe()方法，该方法可以返回观察者的实例。为了能够在`Storage`结构外调用这一方法，我们通过`prohectedValue`变量把wrapper类型自身暴露出来：
+
+```swift
+@propertyWrapper
+struct UserDefault<T: PropertyListValue> {
+    var projectedValue: UserDefault<T> { return self }
+    
+    func observe(change: @escaping (T?, T?) -> Void) -> NSObject {
+        return DefaultsObservation(key: key) { old, new in
+            change(old as? T, new as? T)
+        }
+    }
+
+    // The rest of the code is unchanged
+}
+```
+
+现在我们可以像下面这样订阅UserDefaults的值的变化了：
+
+```swift
+var storage = Storage()
+
+var observation = storage.$isFirstLaunch.observe { old, new in
+    print(old, new)
+}
+
+storage.isFirstLaunch = false
+
+// Prints `nil false`
+```
+
+
+
+### 总结
+
+一些关于如何理解`UserDefaults`的关键点，如下所示：
+
+* `UserDefaults`创建了字典和.`plist`文件用来存储键值对
+* `UserDefaults`非常适合小体积的data数据和简单数据类型的存储
+* `UserDefaults`的性能达到最优，当写操作尽可能少，而读操作尽可能多的时候
+
+Swift 5 改变了`UserDefaults`。在Property Wrapper的帮助下，我们能够设计类型安全的键值存储，并且可以观察值的变化。
