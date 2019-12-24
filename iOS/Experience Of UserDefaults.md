@@ -1,23 +1,40 @@
-Experience Of UserDefault
+# UserDefault在Swift中的实践
+
+文章翻译自Vadim Bulavin的[The Advanced Guide to UserDefaults in Swift](https://www.vadimbulavin.com/advanced-guide-to-userdefaults-in-swift/)
+
+
+
+在人们的记忆中，`UserDefaults`很早就已经存在于iOS SDK。Swift语言发展迅速，为游戏带来了新功能的同时，也改变了我们以前所习惯的与现有功能配合使用的方式。Swift 5中引入的属性包装器（property wrappers）就为我们提供了一个很好的机会，去回顾`UserDefaults`的常规实现并更新一直以来所学习的基础知识。
+
+在这篇文章中，我们将会谈及以下内容：
+
+* 什么是`UserDefaults`？
+* 我们应该把哪些类型的数据存储到`UserDefaults`中？
+* `UserDefaults`内部是如何实现的？
+* 基于`UserDefaults`和Swift的属性包装器（property wrappers），设计状态安全的键值存储
+* 如何观察`UserDefaults`的值变化
 
 ---
 
-### 什么是UserDefaults
+### UserDefaults概览
 
-`UserDefaults`管理着键值对在.plist文件中的存储
+`UserDefaults`管理着键值对在.plist文件中的持久性存储
 
-可存储以下类型：
+`UserDefaults`存储仅作用于所谓的`property-list` [1]数据类型：` Data`、`String`、`Date`、`Int`,`Double`,`Float`,`Array`, `Dictionary` 和`URL`（唯一的非`property-list` 类型）。同时我们也可以先将任意的对象编码成`Data`实例，再存储进`UserDefaults`。
 
-1. ` Data`、`String`、`Date`、`Int`,`Double`,`Float`,`Array`, `Dictionary` 和`URL`
-2. 对象可编码成`Data`实例再存储进`UserDefaults`
-3. 推荐只存储用户偏好设置和软件配置。
+> `UserDefaults`的源码中列出了支持的所有类型：Swift的[普通类型](https://github.com/apple/swift-corelibs-foundation/blob/ef6f96ee82ea0f54252071c0ecadf5f01be9aecc/Foundation/UserDefaults.swift#L58)、[非普通类型](https://github.com/apple/swift-corelibs-foundation/blob/ef6f96ee82ea0f54252071c0ecadf5f01be9aecc/Foundation/UserDefaults.swift#L63)、[NS -/CF - 桥接类型](https://github.com/apple/swift-corelibs-foundation/blob/e49beda4e4bd49e8ab541015d78b82a0a1957bc5/Foundation/Bridging.swift)、还有`NSNumber`（不是桥接类型，但依然支持）
 
-不支持以下类型的存储：
+对于我们可以存多大的数据进`UserDefaults`，这并没有强制的要求，除了[tvOS平台](https://developer.apple.com/documentation/foundation/userdefaults/1617187-sizelimitexceedednotification)上限制了不能超过1M。
 
-1. `Double`, `Int16`....[uncommon Swift types](https://github.com/apple/swift-corelibs-foundation/blob/ef6f96ee82ea0f54252071c0ecadf5f01be9aecc/Foundation/UserDefaults.swift#L63)
-2. 对数据大小无强制限制，除了tvOS限制在1M以下
-3. 由于读写限制（存储容量越大，读写耗时越高），不推荐存储大容量数据
-4. 不建议存储自定义对象，即使可以通过转换成`Data`类型实例存储进`UserDefaults`.理由如下：a .不管是存储还是读取，都要与`Data`类型互转，开销较大。b.当App版本更新后，很可能由于改变了自定义数据类型，导致与旧数据出现冲突（无法读取等）。
+不管怎样，其实不推荐存储大容量数据，因为`UserDefaults`存储的内容越多，读写耗时越高。其背后的原理是每个domain（通常每个应用）默认只使用了一个`.plist`文件，如果存储大量数据将导致该文件变得臃肿。
+
+由于以下原因，同样也不推荐存储自定义对象：
+
+1. 即使可以通过转换成`Data`类型实例存储进`UserDefaults`，但不管是存储还是读取，都要与`Data`类型互转，开销较大。
+
+2. b.当App版本更新后，很可能由于改变了自定义数据类型，导致与旧数据出现冲突（无法读取等）。
+
+根据苹果的官方文档描述，使用`UserDefaults`的最佳方法是将用户偏好和app配置存储为简单值。
 ### UserDefaults的内部实现
 
 参考苹果开源的Swift源码，观察`UserDefaults`是怎么在幕后工作的。
@@ -155,3 +172,4 @@ storage.isFirstLaunch = false
 * `UserDefaults`的性能达到最优，当写操作尽可能少，而读操作尽可能多的时候
 
 Swift 5 改变了`UserDefaults`。在Property Wrapper的帮助下，我们能够设计类型安全的键值存储，并且可以观察值的变化。
+
