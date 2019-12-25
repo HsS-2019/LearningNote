@@ -34,19 +34,23 @@
 根据苹果的官方文档描述，使用`UserDefaults`的最佳方法是将用户偏好和app配置存储为简单值。
 ### UserDefaults的内部实现
 
-参考苹果开源的[Swift源码](https://github.com/apple/swift-corelibs-foundation)，观察`UserDefaults`是怎么在幕后工作的。
+让我们深入研究苹果开源的[Swift源码](https://github.com/apple/swift-corelibs-foundation)，查看`UserDefaults`是怎么在幕后工作的。
 
-`UserDefaults`在不同的域（domain）中存储数据，这意味着每个域都有一个保证域内一致性的`.plist`文件，用来存储持久性数据。
+`UserDefaults`在不同的域（domain）中存储数据（按域保存），这意味着每个域都有一个保证域内一致性的`.plist`文件，用来存储持久性数据。
 
-*Domain* 只是一个`String`类型变量，如果你曾经偶然看到过`UserDefaults`的内部实现源码，你会发现这个变量叫做`suite`。两个不同的名字都指向了同一个概念，所以我们不妨继续称之为域（domain）。
+*Domain* 只是一个纯字符串，如果你曾经偶然看到过`UserDefaults`的内部实现源码，你会发现在源码里这是一个[叫做`suite`的变量](https://www.vadimbulavin.com/advanced-guide-to-userdefaults-in-swift/)。两个不同的名字都指向了同一个概念，所以我们不妨继续称之为域（domain）。
 
-默认情况下，每个APP有八个域，这八个域组成了搜索的列表（list）。当我们第一次读或写值（与文件系统交互）时，该搜索列表就会被初始化出来。另外，需要注意的是，如果想要对`UserDefault`拥有更细粒度的控制， 我们可以自由地添加更多的域。
+默认情况下，每个APP有八个域，这八个域组成了所谓的搜索列表（list）。当我们第一次读值或写值（与文件系统交互？）时，该搜索列表就会被初始化出来。另外，值得注意的是，如果想要对`UserDefault`存储拥有更细粒度的控制， 我们可以自由地添加更多的域。[翻译优化]
 
-搜索列表中的域会合并成一个字典，这是一个耗时高的操作。每次当我们对`UserDefaults`执行添加键值对、更新键值对或移除某个键值对时，字典都会重新计算。这也使我们能从另一个角度了解`UserDefaults`的性能：
+搜索列表中的域会合并成一个字典，这是一个开销较大的操作。每次当我们对`UserDefaults`执行添加键值对、更新键值对或移除某个键值对时，字典都会重新计算。这也使我们从另一个角度了解了`UserDefaults`的性能：
 
-> UserDefaults有两层cache：域（domain）层和app层
+> 当写操作很少，而读操作频繁时，`UserDefaults`的性能达到最佳。
 
+当我们把一个值存储进`UserDefaults`时，系统会调用[CFApplicationPreferences.c](https://github.com/apple/swift-corelibs-foundation/blob/155f1ce1965effe55289477507a6f9fbdc8fe333/CoreFoundation/Preferences.subproj/CFApplicationPreferences.c)文件（这是一堆可怕的代码，里面有着一些日期为1999年的注释，该文件被放在CoreFoundation框架中）中的[_CFApplicationPreferencesSet函数](https://github.com/apple/swift-corelibs-foundation/blob/155f1ce1965effe55289477507a6f9fbdc8fe333/CoreFoundation/Preferences.subproj/CFApplicationPreferences.c#L326)。`CFApplicationPreferences`管理所有已注册域（domain）和一些缓存中用户默认值的字典表示。
 
+app的偏好项将每个域的工作委托给了`CFPreferences.c`，该文件负责读取XML文件并将其写入磁盘，并进行缓存。
+
+> `UserDefaults`有两层cache：域（domain）层和app层
 
 ### 键值对存储的实现
 
