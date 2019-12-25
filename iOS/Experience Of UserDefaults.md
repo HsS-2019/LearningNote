@@ -1,6 +1,6 @@
-Experience Of UserDefault
+# Experience Of UserDefault
 
----
+
 
 ### 什么是UserDefaults
 
@@ -20,7 +20,7 @@ Experience Of UserDefault
 4. 不建议存储自定义对象，即使可以通过转换成`Data`类型实例存储进`UserDefaults`.理由如下：a .不管是存储还是读取，都要与`Data`类型互转，开销较大。b.当App版本更新后，很可能由于改变了自定义数据类型，导致与旧数据出现冲突（无法读取等）。
 ### UserDefaults的内部实现
 
-参考苹果开源的Swift源码，观察`UserDefaults`是怎么在幕后工作的。
+参考苹果开源的[Swift源码](https://github.com/apple/swift-corelibs-foundation)，观察`UserDefaults`是怎么在幕后工作的。
 
 `UserDefaults`在不同的域（domain）中存储数据，这意味着每个域都有一个保证域内一致性的`.plist`文件，用来存储持久性数据。
 
