@@ -28,5 +28,7 @@
 ##### a. 键盘遮挡
 iOS 11中，多行文本在输入时可能会被键盘遮挡，TableView也不会自动向上移动，解决方法参考如下：
 
+b. 
+
 #### 参考资料
 [iOS 11 TableViewCell 内嵌 TextView 的一些问题](https://blog.csdn.net/weixin_33725270/article/details/86997584)
