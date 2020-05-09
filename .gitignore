@@ -1,4 +1,11 @@
 
 .DS_Store
+
+ #过滤Markdown Editor自动保存的归档文本（除原始文本）
+.Archive   
+
+#过滤Markdown Editor的样式
+.markeditor 
+
 _config.yml
 
