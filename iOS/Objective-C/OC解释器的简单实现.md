@@ -54,7 +54,7 @@
 
 #### 直接运行高级编程语言
 
-
+直接把高级编程语言的源代码转译成机器语言执行。
 
 #### 
 
@@ -107,5 +107,5 @@
 ## 参考文章
 
 * [解释器——百度百科]([https://baike.baidu.com/item/%E8%A7%A3%E9%87%8A%E5%99%A8/10418965?fr=aladdin](https://baike.baidu.com/item/解释器/10418965?fr=aladdin))
-* [编译器和解释器的区别和工作原理](http://www.opython.com/1355.html)
+* [编译器和解释器的区别和工作原理](https://zhuanlan.zhihu.com/p/39141067)
 * [怎么写一个解释器](http://www.yinwang.org/blog-cn/2012/08/01/interpreter)
