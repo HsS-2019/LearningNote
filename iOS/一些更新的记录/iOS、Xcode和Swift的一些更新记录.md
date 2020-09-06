@@ -8,6 +8,10 @@
 
   [The Advanced Guide to UserDefaults in Swift](https://www.vadimbulavin.com/advanced-guide-to-userdefaults-in-swift/) 
 
+### iOS 14
+
+* 相册提供只显示部分图集选项
+
 ### iOS 13
 
 * Dark Mode

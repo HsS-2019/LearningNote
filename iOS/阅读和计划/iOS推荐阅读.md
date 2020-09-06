@@ -7,10 +7,15 @@
 ### 教程和书籍
 #### 语法
  - [官方文档（中文版）](https://www.cnswift.org/)
+ - [官方文档（中文版-SwiftGG）]()
 
 #### 视频教程
 - [Stanford iOS开发课程](https://www.bilibili.com/video/av42035892)
-围绕怎么开发一个翻牌游戏，讲解使用swift开发iOS的基本流程  
+  围绕怎么开发一个翻牌游戏，讲解使用swift开发iOS的基本流程  
+
+- [泊学]()
+
+  对于Swift原理的探索，iOS编程实践的总结，另外还讲解了怎么使用Swift实现基于MVVM的iOS App
 
 #### 扩展阅读
 - [Swifter-Swift开发者必备Tips](https://objccn.io/products/)-出自Objc中国，Swift的一些技巧,实用  
@@ -22,6 +27,7 @@
 - [Swift:面向协议编程]()  
 - [精通Swift设计模式]()
 - [Using Combine](https://heckj.github.io/swiftui-notes/)-
+- [跟戴铭学iOS编程—理顺核心知识点]()
 
 ### 其它学习资源
 #### 英文
@@ -83,5 +89,7 @@
   本文主要围绕Xcode 11以上新建的项目自带的新文件`SceneDelegate.swift`，讨论了`SceneDelegate.swift`的用途、怎么更有效率地实现`SceneDelegate.swift`，以及为什么说`SceneDelegate.swift`是iOS 13的重要部分
 
 * 
+
+
 
 New Story

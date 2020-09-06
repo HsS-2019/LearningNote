@@ -1,6 +1,6 @@
 # Swift更新关注
 
-### 1.SwiftUI
+### SwiftUI
 Apple新推出的声明式UI框架，支持预览等操作，
 
 要求配置
@@ -9,7 +9,7 @@ Apple新推出的声明式UI框架，支持预览等操作，
 - `MacOS 10.15`
 - `Swift5.2`
 
-### 2.Combine
+### Combine
 官方异步编程ß框架，对标响应式编程的RXSwift。
 
 > 响应式编程：
