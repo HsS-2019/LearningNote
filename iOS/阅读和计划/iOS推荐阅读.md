@@ -10,7 +10,7 @@
  - [官方文档（中文版-SwiftGG）]()
 
 #### 视频教程
-- [Stanford iOS开发课程](https://www.bilibili.com/video/av42035892)
+- [Stanford iOS 193P](https://www.bilibili.com/video/av42035892)
   围绕怎么开发一个翻牌游戏，讲解使用swift开发iOS的基本流程  
 
 - [泊学]()
