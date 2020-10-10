@@ -1,4 +1,4 @@
-了解iOS的性能监控，进而对底层的一些认识
+在阅读iOS性能监控相关文章的过程中，发现可以将一些性能指标和其他知识串联起来，这篇笔记的目的正是在于此。
 
 ### CPU使用率
 
@@ -51,7 +51,9 @@ Jetsam机制，iOS系统低内存事件处理，OOM和FOOM的监控和分析
 
 main函数执行前和main函数执行后做了什么，应用启动优化。
 
-参考文章：
+
+
+##### 参考文章：
 
 [iOS性能监控方案Wedjat](https://github.com/aozhimin/iOS-Monitor-Platform#%E9%A1%B9%E7%9B%AE%E5%90%8D%E7%A7%B0%E7%9A%84%E6%9D%A5%E6%BA%90)
 
