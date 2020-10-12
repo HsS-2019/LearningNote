@@ -37,6 +37,8 @@ let view3 = CustomView(items: titles)
 
 约束代码应该写在哪？
 
+纯代码构建View时，可以借助NSLayoutAnchor添加约束，可参考[NSLayoutAnchor基础知识](https://peteruncle.com/2018/01/28/NSLayoutAnchor%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/#UILayoutGuide)
+
 ### 容器View
 
 定义专门的UIView，作为容器，管理绘制自定义的需要展示的UI。自定义UI的元素应可以良好的支持单元测试，每一个单元尽量内聚。和外部通过数据连接，自身的逻辑可以独立的运行。
