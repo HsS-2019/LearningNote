@@ -1,5 +1,3 @@
-# 
-
 # 记录iOS上不同语言的特性
 
 学习过程中发现，在iOS平台上的使用的两门语言：Objective-C和Swift，既有着不同，也存在着很多的共性。
@@ -37,7 +35,7 @@ ARC和MRC的一些区别如下：
   * 如果走优化流程，则将一个标志位存储在TLS（Thread Local Storage）中后直接返回对象。否则加入`autoreleasepool`
   * 执行后续方法`objc_retainAutoreleaseReturnValue`时检查TLS的标志位判断是否处于优化流程，如果处于优化流程则直接返回对象，并且将TLS的状态还原。
 
-* 在ARC和MRC下，Block的表现也有所不同，ARC下赋值时Block自动调用copy方法。且对于StackBlock和MallocBlock的处理也有所不同，详见霜神关于Block的一篇博文
+* 在ARC和MRC下，Block的表现也有所不同，ARC下赋值时Block自动调用copy方法。且`__block`变量在ARC和MRC下的处理也有所不同，详见霜神关于Block的一篇博文
 
 * 在ARC下，CF和OC之间的转化桥梁是__bridge_transfer，它们之间互相转化的原则是：
 
