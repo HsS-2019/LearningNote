@@ -32,8 +32,6 @@ Core Graphics基于Quartz高级绘图引擎，主要用于**运行时绘制图�
 
 绘制的底层框架。OpenGL ES是由GPU厂商实现的一套第三方标准，Metal也是一套第三方标准，但是由苹果实现。**Apple已实现一套机制将OpenGL命令无缝桥接到Metal上**，由Metal执行真正与硬件交互的工作。当前苹果所推动的趋势也是更多地使用Metal而不是OpenGL ES。
 
-#### 
-
 #### 层级关系的梳理
 
 视图树，UIView的视图层级结构
@@ -50,18 +48,24 @@ CPU处理，然后提交给GPU处理，布局和渲染都会在Runloop的同一�
 
 VSync垂直信号 + 双缓冲机制，解决屏幕撕裂问题，但是导致了当前的卡顿问题
 
-#### 参考阅读
+##### 参考阅读
 
 * [iOS图像渲染原理](http://chuquan.me/2018/09/25/ios-graphics-render-principle/)
 * [计算机图形图像渲染原理](http://chuquan.me/2018/08/26/graphics-rending-principle-gpu/)
-
-### 
+* [如何让界面保持流畅](https://yeziahehe.com/2020/02/05/smooth_user_interfaces_for_ios/)
+* 界面流畅
 
 ### 事件处理
 
-#### 事件响应链
+#### 事件响应机制
 
 事件传递过程，以及响应事件链
+
+参考阅读
+
+[事件响应机制](https://yeziahehe.com/2020/01/19/responder_chain/)
+
+[iOS中事件的响应链和传递链](https://gsl201600.github.io/2019/12/25/iOS%E4%B8%AD%E4%BA%8B%E4%BB%B6%E7%9A%84%E5%93%8D%E5%BA%94%E9%93%BE%E5%92%8C%E4%BC%A0%E9%80%92%E9%93%BE/)
 
 #### 视图生命周期
 
@@ -73,7 +77,11 @@ UIView的生命周期，涉及视图的加载、绘制，布局等
 
 ### UI绘制原理
 
-CAlayer的绘制流程
+CALayer的绘制流程
+
+##### 参考阅读
+
+[iOS拾遗——为什么必须在主线程操作UI](https://juejin.im/post/6844903763011076110)
 
 ### iOS动画原理
 
@@ -89,5 +97,3 @@ iOS动画的原理与实现方式
 * [UITableView复用机制的底层探秘](https://www.desgard.com/iOS-Source-Probe/Objective-C/Foundation/%E5%A4%8D%E7%94%A8%E7%9A%84%E7%B2%BE%E5%A6%99%20-%20UITableView%20%E5%A4%8D%E7%94%A8%E6%8A%80%E6%9C%AF%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90.html)
 
 
-
-### 
