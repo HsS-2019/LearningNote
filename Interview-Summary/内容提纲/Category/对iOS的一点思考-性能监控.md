@@ -49,9 +49,57 @@ Jetsam机制，iOS系统低内存事件处理，OOM和FOOM的监控和分析
 
 ##### 关联知识
 
-main函数执行前和main函数执行后做了什么，应用启动优化。
+了解main函数执行前和main函数执行后做了什么，简单的应用启动优化思路。
 
+##### **main函数执行前**
 
+main函数执行前，主要包括以下阶段：
+
+* 创建进程
+
+* mmap主二进制，找到dylb的路径
+
+* mmap dylb，执行dylb_start，完成剩下的动态库的load
+
+  这个阶段，如果是重启手机/更新/下载App的第一次启动，dylb3会创建启动闭包并缓存到沙盒里，其他时候应用启动直接读取缓存去查找闭包
+
+  闭包做的事情蛮多的，主要包括
+
+  * 递归获取动态库的依赖关系，动态库的依赖是树状的结构
+  * 加载Class和Category，初始化objc的类方法等信息
+  * 初始化的调用顺序
+
+* 把没有加载的动态库mmap进来（这个阶段还有没加载的动态库？）
+* Fix-up，对每个二进制做rebase（重定向）和bind（符号绑定），主要耗时在Page In，影响Page In 数量的是objc的元数据（类的加载）
+* 初始化objc（Swift）的运行时，前面的闭包已经完成大半，所以这里主要是SEL的注册（建立SEL表）和装载Category
+* Load & Static Initializer，主要包括类和分类的+load方法执行和静态初始化。对于在编译期间能确定的static变量编译器会直接inline，其它的会留到运行时，也就是现在，执行初始化。
+
+main函数执行前主要的耗时是在Mach-O文件的Page-In（Page-In发生在rebase阶段？），以及将页读取到内存后对页的解密和签名验证。
+
+##### **main函数执行后**
+
+main函数执行到第一帧渲染出来前，主要包括以下阶段
+
+* 初始化UIApplication，启动Main Runloop（主线程的Runloop）
+* 执行will/didFinishLaunch，部分业务需要注册（App的Life Cycle）
+* iOS渲染流程直到第一个CA Transaction commit，包括以下步骤
+  * Layout：viewDIdLoad和Layoutsubviews会在这里调用，应尽量减少视图层次，减少约束
+  * Display：Root Layer调用CALayer 的display方法，如果UIView实现了drawRect方法，也会在这里调用
+  * Prepare：附加步骤，图片解码会发生在这一步
+  * Commit：将首帧渲染数据打包，发给Render Server进程，启动结束
+
+##### 应用启动思路分析
+
+上面所说的是基于dylb3的应用启动流程，dylb2相对于dylb3的主要区别是没有启动闭包和解密优化这些，导致每次启动要：
+
+* 解析动态库的依赖关系
+* 解析LINKEDIT，找到bind & rebase的指针地址，找到bind符号的地址
+* 注册objc的Class/Method等元数据
+
+通过阅读不同公司的启动优化方案，我们可以看到一些成功的应用启动优化实践
+
+* 二进制重排，减少Page-In的次数。
+* 插桩，llvm编译过程给记录调用的函数方法
 
 ##### 参考文章：
 
@@ -62,3 +110,5 @@ main函数执行前和main函数执行后做了什么，应用启动优化。
 [深入理解iOS App的启动过程](https://blog.csdn.net/Hello_Hwc/article/details/78317863?locationNum=9&fps=1)
 
 [抖音品质建设—iOS启动优化《原理篇》](https://juejin.im/post/6887741815529832456)
+
+> 实践是检验真理的唯一标准

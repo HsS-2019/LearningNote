@@ -68,3 +68,4 @@ NSCache和NSDictionary都是苹果提供的内存缓存。不同的是NSCache是
 
 
 
+> 实践是检验真理的唯一标准
