@@ -67,3 +67,5 @@ MRC相比于ARC的不足：
 1. [ARC vs MRC，这不是一个编程习惯问题](http://www.beyondabel.com/blog/2014/03/05/mrc-arc/)
 2. [Objective-C高级编程——iOS与OS X多线程和内存管理]()
 3. [深入研究Block捕获外部变量和__block实现原理—霜神](https://halfrost.com/ios_block/)
+
+> 实践是检验真理的唯一标准
