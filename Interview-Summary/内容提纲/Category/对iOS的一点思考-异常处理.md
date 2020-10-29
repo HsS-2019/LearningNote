@@ -2,13 +2,23 @@
 
 本文从异常处理机制出发，探索不同语言的异常处理机制，并介绍了如何捕获Crash，分析Crash，和OOM问题分析定位
 
-### iOS的异常处理机制
+## 不同语言的异常处理机制
 
-#### Objective-C的异常处理
+下面会分别分析C++、Objective-C和Swift语言的异常处理机制
 
-探索Objective-C/C++的异常处理机制
+#### C++语言的异常处理机制
 
-##### OC语言的异常机制
+C++提供了异常机制，使用上同别的语言类似，通过`try catch finally`语法，对一些存在异常的场景或者需要自定义异常场景，需要捕获异常处理，否则会导致未捕获异常引发应用被系统kill掉
+
+C++语言对于未捕获的异常有兜底处理逻辑，就是`terminat`函数
+
+当我们抛出一个异常时，异常会随着函数调用关系，一级一级往上抛出，直到被catch捕获才会停止，如果最终没有被捕获将会导致调用`terminate`函数。为了保证灵活性，C++提供了`set_terminate`函数可以用来设置自己的`terminate`函数，设置完成后，抛出的异常如果没有被捕获就会被自定义的`terminate`函数进行处理
+
+> C++中的noexcept关键字，是用来标注函数的，将决定对应函数的code generation结果。也就是说编译器是否为一个函数生成清理执行路径，是会取决于栈空间对象分配过程之间是否有“潜在抛出异常的表达式”
+
+#### OC语言的异常处理机制
+
+> OC的异常处理和C++的异常处理在实现机制上很像，更严格地说，Objective-C的异常处理机制就是借助C++来实现的
 
 对于`Objective-C`语言，可以通过`@try @catch`捕获异常，但这种方式存在以下缺点，导致使用率不高：
 
@@ -19,23 +29,39 @@
 
 Objective-C中有对于未捕获的异常的兜底逻辑`NSSetUncaughtExceptionHandler`函数。
 
-##### C++语言的异常机制
+> 当异常发生时，runtime必须要按一定的路径来逐一退出栈帧到exception handler，不能将栈帧直接重置，否则就会引发资源泄漏。这个过程叫做Stack Unwinding，在macOS中，C++ABI使用了libunwind来配合实现异常处理机制
 
-C++同OC语言本身一样提供了异常机制，使用上同别的语言类似，通过`try catch finally`语法，对一些存在异常的场景或者需要自定义异常场景，需要捕获异常处理，否则会导致未捕获异常引发应用被系统kill掉
 
-C++语言也有对于未捕获异常的兜底处理逻辑，就是`terminat`函数。
 
-当我们抛出一个异常时，异常会随着函数调用关系，一级一级往上抛出，直到被catch捕获才会停止，如果最终没有被捕获将会导致调用`terminate`函数。为了保证灵活性，C++提供了`set_terminate`函数可以用来设置自己的`terminate`函数，设置完成后，抛出的异常如果没有被捕获就会被自定义的`terminate`函数进行处理
+#### Stack Unwinding实现
 
-#### Swift上的异常处理
+stack unwinding（栈帧回退），是C++和Obective-C语言中异常处理机制的原理。
 
-探索Swift的异常处理机制
+得到encoding才能进一步确定函数是否具有LSDA，编译器会把异常相关信息存放在这个区域中。通过encoding也可以得到personality函数指针，该函数指针会被存储起来在后面与LSDA配合一起用来判断一个栈帧是否可以处理某个异常。
+
+在libunwind中，stack unwinding经历两个阶段：lookup、cleanup。第一个lookup阶段用于查找是否有哪个栈帧可以处理这个异常，如果没有，直接跳过第二阶段，从而执行failed——>std::terminate来结束进程。
+
+第二阶段与第一阶段类似，都是从栈顶从新walk所有栈帧，找到是否有某个栈帧或者landing pad可以处理异常。
+
+当栈帧清理结束后，会调用`_Unwind_Resume`继续异常处理的过程。`_Unwind_Resume`会继续执行unwinding的第二个阶段，比较类似从当前位置继续抛出异常。
+
+> 实际上Objective-C也是借用了C++的异常处理机制来实现它的异常处理。当我们执行[NSException raise]时，CF内部会调用到Objective-C runtime的objc_exception_throw，等同于C++的throw。
+
+对于Objective-C中使用NSException可能导致内存泄漏的问题，其实是使用不当导致的。
+
+* MRC编译模式下，异常发生时会中断当前函数的执行路径，手动编写的release调用就会被跳过。
+
+* ARC编译模式下，编译器有自动生成retain/release的能力，即Objective-C具有了RAII的能力，因此编译器会为每个Objective-C方法生成用于执行release的landing pad。
+
+#### Swift的异常处理机制
 
 Swift中有异常处理机制，但是没有兜底的异常处理逻辑，即对于未捕获的异常，语言应用层上没有对应接口统一捕获。
 
-查阅了一些资料，Martin在stack overflow上post了Apple的回复，主要是考虑实现后开销过大而没有实现，由于引用计数机制的存在，想要实现类似OC统一捕获运行时错误的功能，需要对于每一个函数在编译器层面加上异常出现时对于引用计数管理的代码，这会使编译出来的代码变得臃肿。
+因为Swift的错误处理与Objective-C、C++是有本质区别的。可以认为Swift在实现上更像一种语法糖，我们需要显示处理每个可能的错误，即Swift没有Unchecked Exception。由于错误不会跨栈帧逃逸，带来的好处就是不需要stack unwinding了，不管是性能还是代码大小都会得到比较好的控制。
 
-**个人存在的一些疑问：**那么为什么OC会有对应的`NSSetUncaughtExceptionHandler`函数统一捕获未捕获的异常呢，`NSSetUncaughtExceptionHandler`函数的实现原理是什么呢？
+> 查阅了一些资料，Martin在stack overflow上post了Apple的回复，主要是考虑实现后开销过大而没有实现，由于引用计数机制的存在，想要实现类似OC统一捕获运行时错误的功能，需要对于每一个函数在编译器层面加上异常出现时对于引用计数管理的代码，这会使编译出来的代码变得臃肿
+
+**个人存在的一些疑问：**那么为什么OC会有对应的`NSSetUncaughtExceptionHandler`函数统一捕获未捕获的异常呢，`NSSetUncaughtExceptionHandler`函数的实现原理是什么呢？（同terminate）
 
 #### 参考阅读
 
@@ -47,7 +73,9 @@ Swift中有异常处理机制，但是没有兜底的异常处理逻辑，即对
 
 [Uncaught Error/Exception Handling in Swift](https://stackoverflow.com/questions/38737880/uncaught-error-exception-handling-in-swift)
 
-### Crash分析
+
+
+## Crash分析
 
 #### Crash的原因以及类型
 
