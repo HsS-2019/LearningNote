@@ -66,12 +66,25 @@ ibireme分析了一些基于文件系统的磁盘缓存开源库，发现含有�
 部分比较在上面已有说明，这里列举阅读源码过程看到的一些区别：
 
 * Kingfisher的磁盘缓存：可设置磁盘缓存大小限制，如果缓存实际大小超限会清理至最大值的一半，在清理过程也使用了LRU算法，先把所有文件按最后修改时间排序，再将最久未被访问的文件清除。需要注意的是，Kingfisher的磁盘缓存清理都是手动调用或者接收到对应通知才执行，并不会自动检测
+
 * Kingfisher的内存缓存：底层实现是NSCache，另外还有一些细节：
+
   * 自定义了keys属性（方便在删除缓存的时候遍历NSCache？）
-  * 定时器。默认时间是五分钟，定期清理过期的内存缓存。（类似LRU的思想，清理最久未访问的）
+  * 定时器。默认时间是五分钟，定期清理过期的内存缓存（类似LRU的思想，清理最久未访问的）。另外在监听到系统对应通知时也会执行清除。
   * NSLock普通锁。存、移除缓存过程中使用了NSLock确保数据安全。NSLock在unlock时，必须确保和lock是在同一线程执行，从其它线程解锁可能导致未定义行为发生。另外不能用该锁实现递归锁，NSLock在同一线程连续调用两次锁会导致线程永久被锁定。
-  * 令人疑惑的是，我并没有看到内存缓存Backend的maxCount和maxCostCount属性有对应的处理逻辑，除了测试用例中有使用。后续看到了对应逻辑，作者将这两个属性赋值给NSCache的同名属性，NSCache内部有对应的自动回收逻辑。
-* YYCache的内存缓存：
+  * 令人疑惑的是，我并没有看到内存缓存Backend的maxCount和maxCostCount属性有对应的处理逻辑，除了测试用例中有使用。更新：后续看到了对应逻辑，作者将这两个属性赋值给NSCache的同名属性，NSCache内部有对应的自动回收逻辑。
+
+* YYCache的内存缓存：底层存储使用了NSDictionary，另外还有一些细节：
+
+  * 定时器。默认时间同样是五分钟，另外提供了选项，是否在监听到对应通知时清除缓存。
+  * 对于多线程，提供了releaseOnMainThread和releaseAsynchronously，控制释放操作是否放到子线程和是否异步执行。
+  * 对于锁，在查看源码的时候发现，YYMemoryCache并没有用到OSSpinLock锁，这与作者分享YYCache设计思路文章中的阐述有所出入，google了一下发现是因为OSSpinLock锁不再保证多线程数据安全，所以作者使用了pthread_mutex_lock锁替代弃用OSSPinLock锁
+
+* YYCache的磁盘缓存：SQLite+文件系统。一些设计细节如下：
+
+  * autoTrimInterval属性，默认值为1分钟，自动检测磁盘缓存是否达到限制，如果达到，会自动执行释放操作。
+
+  ![image-20201101093836864](https://tva1.sinaimg.cn/large/0081Kckwgy1gk9fasmit0j317n0u0ad2.jpg)
 
 #### 参考阅读
 
@@ -111,7 +124,7 @@ ibireme分析了一些基于文件系统的磁盘缓存开源库，发现含有�
 
 #### CoreData数据库
 
-### 多线程
+# 多线程
 
 对于多线程，有一些基本概念需要先梳理清楚
 
@@ -126,7 +139,21 @@ ibireme分析了一些基于文件系统的磁盘缓存开源库，发现含有�
 
 [主线程和主队列的关系](https://mp.weixin.qq.com/s/OWya_IW3isFHEysPUOkEvA)
 
-[atomic一定线程安全吗]()
+[iOS多线程到底不安全在哪](https://zhuanlan.zhihu.com/p/24102640)
+
+本文从内存读写角度清晰地阐述了iOS多线程再哪些场景下是不安全的，同时还探讨了atomic的线程安全性，是一篇比较好的新手向文章
+
+[iOS中不同锁的比较](https://github.com/bestswifter/blog/blob/master/articles/ios-lock.md)
+
+[优先级反转问题]()
+
+[不再安全的OSSpinLock](https://blog.ibireme.com/2016/01/16/spinlock_is_unsafe_in_ios/)
+
+[深入了解GCD](https://github.com/bestswifter/blog/blob/master/articles/objc-gcd.md)
+
+[多个网络请求成功返回再执行另外任务的思路分析](https://www.cnblogs.com/SUPER-F/p/7365699.html)
+
+[为什么必须在主线程操作UI](https://juejin.im/post/6844903763011076110)
 
 [多线程-奇怪的GCD](https://mp.weixin.qq.com/s/GnKqRWcfLn2GQZLb5GUyKA)
 
