@@ -50,6 +50,8 @@ VSync垂直信号 + 双缓冲机制，解决屏幕撕裂问题，但是导致了
 
 ##### 参考阅读
 
+* [iOS保持界面流畅的技巧](https://blog.ibireme.com/2015/11/12/smooth_user_interfaces_for_ios/)
+
 * [iOS图像渲染原理](http://chuquan.me/2018/09/25/ios-graphics-render-principle/)
 * [计算机图形图像渲染原理](http://chuquan.me/2018/08/26/graphics-rending-principle-gpu/)
 * [如何让界面保持流畅](https://yeziahehe.com/2020/02/05/smooth_user_interfaces_for_ios/)
