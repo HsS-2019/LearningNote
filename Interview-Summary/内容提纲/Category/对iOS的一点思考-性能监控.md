@@ -47,6 +47,8 @@ Jetsam机制，iOS系统低内存事件处理，OOM和FOOM的监控和分析
 
 关联知识点：iOS的渲染流程，UIView的draw函数，runloop流程。
 
+[京东商城APP卡顿监控及优化实践](https://mp.weixin.qq.com/s/aJeAUAjcKOMvznDMGj2UUA)
+
 ### 应用启动时间
 
 冷启动时间的计算，从点击图标开始，到应用程序的第一帧图像Render Commit。
