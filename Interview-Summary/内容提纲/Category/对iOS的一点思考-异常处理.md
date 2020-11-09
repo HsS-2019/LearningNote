@@ -150,6 +150,10 @@ Crash出现在开发者编写的代码和系统库中时，如何分析和定位
 
 本文中我们主要认识一些汇编基础概念：栈、栈帧、调用栈，以及一些寄存器存放的内容（SP、PC、LR、FP）和常用的一些汇编指令
 
+[腾讯WeTest：低于0.01%的极致Crash率是怎么做到的？](https://zhuanlan.zhihu.com/p/38620105)
+
+本文通过两个例子：Crash发生在msgSend的野指针异常，和Crash发生在C函数（系统库接口），分析了如何通过汇编定位Crash的具体位置，需要了解寄存器和函数调用栈等一些基础知识
+
 [发现iOS SDK的Bug - Hopper使用教程向](https://dreampiggy.com/2019/06/13/%E5%8F%91%E7%8E%B0iOS-SDK%E7%9A%84Bug-Hopper%E4%BD%BF%E7%94%A8%E6%95%99%E7%A8%8B%E5%90%91/)
 
 对于反汇编定位问题，首先我们需要确定什么
