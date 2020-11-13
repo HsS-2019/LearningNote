@@ -42,11 +42,17 @@ Swift中方法的派送机制比较复杂，且有可能发生改变，比如Swi
 
 具体可以看下四娘之前翻译的一篇讲Swift方法派发方式的文章以及关注Swift社区
 
-##### 参考阅读
+#### 参考阅读
 
 [理解Swift中struct和class在不同情况下性能的差异](https://www.jianshu.com/p/394e4fe614a0)
 
 [Swift - 结构体优化 - 写时复制](https://www.jianshu.com/p/568cf6003dd4)
+
+[Swift中copy on write的研究](https://peteruncle.com/2018/03/05/swift%E4%B8%ADcopy%20on%20write%E7%9A%84%E7%A0%94%E7%A9%B6/#%E4%BB%80%E4%B9%88%E6%98%AF%E5%86%99%E6%97%B6%E5%A4%8D%E5%88%B6-copy-on-write)
+
+[Writing High-Performance Swift Code](https://github.com/apple/swift/blob/main/docs/OptimizationTips.rst)
+
+这是Swift的一篇官方文档，讲述了如何通过一些策略编写高质量的Swift代码，其中就有讲解了写时复制的底层实现机制，强烈建议深入理解本文
 
 ## Objective-C
 
