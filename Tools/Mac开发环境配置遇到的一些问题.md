@@ -18,3 +18,4 @@
 * Carthage安装，[安装教程](https://www.jianshu.com/p/a734be794019)
 * Carthage的几个tips
 * bootstrap和update的选择
+
